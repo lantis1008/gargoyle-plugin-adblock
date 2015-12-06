@@ -76,24 +76,16 @@ add_config()
 		logger -t ADBLOCK Tor is enabled, discarding firewall rules
 	fi
 
-	# Determining uhttpd/httpd_gargoyle for transparent pixel support
+	# Modifying uHTTPd for transparent pixel support
 	if [ "$TRANS" == 1 ]
 	then
-		logger -t ADBLOCK Pointing server error page at transparent pixel
+		logger -t ADBLOCK Pointing uHTTPd error page at transparent pixel
 		ENDPOINT_IP4=$(uci get network.lan.ipaddr)
 		if [ ! -e "/www/1.gif" ]
 		then
 			/usr/bin/wget -O /www/1.gif http://upload.wikimedia.org/wikipedia/commons/c/ce/Transparent.gif  > /dev/null
 		fi
-		if [ -s "/usr/sbin/uhttpd" ]
-		then
-			uci set uhttpd.main.error_page="/1.gif" && uci commit
-		elif [ -s "/usr/sbin/httpd_gargoyle" ]
-		then
-			uci set httpd_gargoyle.server.page_not_found_file="1.gif" && uci commit
-		else
-			ENDPOINT_IP4="0.0.0.0"
-		fi
+		uci set uhttpd.main.error_page="/1.gif" && uci commit
 	fi
 }
 
@@ -112,13 +104,8 @@ remove_config()
 	sed -i '/--to-ports 53/d' /etc/firewall.user
 
 	# Remove proxying
-	logger -t ADBLOCK Reverting server error page
-	if [ -s "/usr/sbin/uhttpd" ]
-	then
-		uci set uhttpd.main.error_page="/login.sh" && uci commit
-	else
-		uci set httpd_gargoyle.server.page_not_found_file="login.sh" && uci commit
-	fi
+	logger -t ADBLOCK Reverting uHTTPd error page
+	uci set uhttpd.main.error_page="/login.sh" && uci commit
 }
 
 update_blocklist()
@@ -177,14 +164,8 @@ restart_dnsmasq()
 
 restart_http()
 {
-	logger -t ADBLOCK Restarting web server
-	if [ -s "/usr/sbin/uhttpd" ]
-	then
-		/etc/init.d/uhttpd restart
-	elif [ -s "/usr/sbin/httpd_gargoyle" ]
-	then
-		/etc/init.d/httpd_gargoyle restart
-	fi
+	logger -t ADBLOCK Restarting uHTTPd
+	/etc/init.d/uhttpd restart
 }
 
 #### END FUNCTIONS ####
