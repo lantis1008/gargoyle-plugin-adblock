@@ -18,7 +18,7 @@ END_RANGE=`uci get adblock.config.exend`
 ENDPOINT_IP4=`uci get adblock.config.endpoint4`
 
 #Change the cron command to what is comfortable, or leave as is
-CRON="0 4 * * 0 sh /usr/lib/gargoyle/runadblock.sh"
+CRON="0 4 * * 0 sh /plugin_root/adblock/runadblock.sh"
 
 #Check if Tor is enabled
 TOR=`uci get tor.global.enabled`
@@ -28,6 +28,7 @@ TOR=`uci get tor.global.enabled`
 
 cleanup()
 {
+	rm -f /tmp/block.build.list
 	rm -f /tmp/block.build.before
 }
 
@@ -59,7 +60,7 @@ add_config()
  
 	#Update DHCP config
 	logger -t ADBLOCK Adding hosts file to dnsmasq
-	uci add_list dhcp.@dnsmasq[0].addnhosts=/etc/block.hosts > /dev/null 2>&1 && uci commit
+	uci add_list dhcp.@dnsmasq[0].addnhosts=/plugin_root/adblock/block.hosts > /dev/null 2>&1 && uci commit
 
 	#Add to crontab
 	logger -t ADBLOCK Adding cron entry
@@ -73,8 +74,7 @@ add_config()
 		echo "$FW2" >> /etc/firewall.user
 	else
 		logger -t ADBLOCK Tor is enabled, discarding firewall rules
-	fi	
-
+	fi
 
 	# Determining uhttpd/httpd_gargoyle for transparent pixel support
 	if [ "$TRANS" == 1 ]
@@ -101,7 +101,7 @@ remove_config()
 { 
 	# Remove addnhosts
 	logger -t ADBLOCK Removing hosts file from dnsmasq
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/etc/block.hosts > /dev/null 2>&1 && uci commit
+	uci del_list dhcp.@dnsmasq[0].addnhosts=/plugin_root/adblock/block.hosts > /dev/null 2>&1 && uci commit
 
 	# Remove cron entry
 	logger -t ADBLOCK Removing cron entry
@@ -125,7 +125,7 @@ update_blocklist()
 {
 	#Delete the old block.hosts to make room for the updates
 	logger -t ADBLOCK Removing old hosts file
-	rm -f /etc/block.hosts
+	rm -f /plugin_root/adblock/block.hosts
 
 	#Download and process the files needed to make the lists
 	logger -t ADBLOCK Retrieving ad lists from remote source
@@ -134,25 +134,22 @@ update_blocklist()
 
 	#Add black list, if non-empty
 	logger -t ADBLOCK Adding entries from black.list
-	if [ -s "/etc/black.list" ]
+	if [ -s "/plugin_root/adblock/black.list" ]
 	then
-		awk -v r="$ENDPOINT_IP4" '/^[^#]/ { print r,$1 }' /etc/black.list >> /tmp/block.build.list
+		awk -v r="$ENDPOINT_IP4" '/^[^#]/ { print r,$1 }' /plugin_root/adblock/black.list >> /tmp/block.build.list
 	fi
 
 	#Sort the download/black lists
 	awk '{sub(/\r$/,"");print $1,$2}' /tmp/block.build.list|sort -u > /tmp/block.build.before
 
-	#Remove the unsorted list to save space
-	rm -f /tmp/block.build.list
-
 	#Filter (if applicable)
 	logger -t ADBLOCK Removing entries from white.list
-	if [ -s "/etc/white.list" ]
+	if [ -s "/plugin_root/adblock/white.list" ]
 	then
 		#Filter the blacklist, supressing whitelist matches
-		egrep -v "^[[:space:]]*$" /etc/white.list | awk '/^[^#]/ {sub(/\r$/,"");print $1}' | grep -vf - /tmp/block.build.before > /etc/block.hosts
+		egrep -v "^[[:space:]]*$" /plugin_root/adblock/white.list | awk '/^[^#]/ {sub(/\r$/,"");print $1}' | grep -vf - /tmp/block.build.before > /plugin_root/adblock/block.hosts
 	else
-		cat /tmp/block.build.before > /etc/block.hosts
+		cat /tmp/block.build.before > /plugin_root/adblock/block.hosts
 	fi
 		
 	#Record when the last time we updated the block list is
