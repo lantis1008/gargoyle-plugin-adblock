@@ -12,6 +12,47 @@ var sec = "config";
 
 function resetData()
 {
+	document.getElementById("adblock_displayed_count").innerHTML=ablock.ADBLOCKCounter+" "+document.getElementById("adblock_blocklist_list").length+"/"+blocklistlines.length;
+	document.getElementById("adblock_blocklist_list").innerHTML="";
+	
+	var errorflag = 0;
+	
+	for (x = 0; x < whitelistlines.length; x++)
+	{
+		var list = whitelistlines[x].toString();
+		var toobig = 0;
+		AddOpt = new Option(list, list);
+		document.getElementById("adblock_whitelist_list").options[x] = AddOpt;
+		toobig = document.getElementById("adblock_whitelist_list").length;
+		if(toobig == 10000)
+		{
+			errorflag = 1;
+			break;
+		}
+	}
+	if(errorflag == 1)
+	{
+		alert(ablock.ADBLOCKWhitebig);
+	}
+	errorflag = 0;
+	for (x = 0; x < blacklistlines.length; x++)
+	{
+		var list = blacklistlines[x].toString();
+		AddOpt = new Option(list, list);
+		document.getElementById("adblock_blacklist_list").options[x] = AddOpt;
+		toobig = document.getElementById("adblock_blacklist_list").length;
+		if(toobig == 10000)
+		{
+			errorflag = 1;
+			break;
+		}
+	}
+	if(errorflag == 1)
+	{
+		alert(ablock.ADBLOCKBlackbig);
+	}
+	errorflag = 0;
+	
 	var enabled = uciOriginal.get(pkg, sec, "enabled");
 	document.getElementById("adblock_enable").checked = enabled == 1;
 	updateStatus(enabled);
@@ -67,6 +108,99 @@ function adblockUpdate()
 	}
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 	updateLastrun();
+}
+
+function transferwhiteList()
+{
+	var index = document.getElementById("adblock_blocklist_list").selectedIndex;
+	var x;
+	
+	while(index != -1)
+	{
+		x = document.getElementById("adblock_blocklist_list").options[index].value.toString();
+		y = document.getElementById("adblock_whitelist_list").length;
+		AddOpt = new Option(x, x);
+		document.getElementById("adblock_whitelist_list").options[y] = AddOpt;
+		document.getElementById("adblock_blocklist_list").options[index] = null;
+		index = document.getElementById("adblock_blocklist_list").selectedIndex;
+	}
+}
+
+function deleteWhitelist()
+{
+	var index = document.getElementById("adblock_whitelist_list").selectedIndex;
+	
+	while(index != -1)
+	{
+		document.getElementById("adblock_whitelist_list").options[index] = null;
+		index = document.getElementById("adblock_whitelist_list").selectedIndex;
+	}
+}
+
+function deleteBlacklist()
+{
+	var index = document.getElementById("adblock_blacklist_list").selectedIndex;
+	
+	while(index != -1)
+	{
+		document.getElementById("adblock_blacklist_list").options[index] = null;
+		index = document.getElementById("adblock_blacklist_list").selectedIndex;
+	}
+}
+
+function searchBlocklist()
+{
+	var x = 0;
+	var y = 0;
+	var errorflag = 0;
+	var toobig = 0;
+	
+	document.getElementById("adblock_blocklist_list").innerHTML = "";
+	
+	if(document.getElementById("adblock_blocklist_search").value.toString() == "")
+	{
+		return false;
+	}
+	
+	var searchvar = new RegExp(document.getElementById("adblock_blocklist_search").value.toString(),'i');
+	for (x = 0; x < blocklistlines.length; x++)
+	{
+		var list = blocklistlines[x].toString();
+		var check = list.match(searchvar);
+		if (check != null)
+		{
+			AddOpt = new Option(list, list);
+			document.getElementById("adblock_blocklist_list").options[y] = AddOpt;
+			y+=1;
+		}
+		
+		toobig = document.getElementById("adblock_blocklist_list").length;
+		if(toobig == 10000)
+		{
+			errorflag = 1;
+			break;
+		}
+	}
+	
+	document.getElementById("adblock_displayed_count").innerHTML=ablock.ADBLOCKCounter+" "+document.getElementById("adblock_blocklist_list").length+"/"+blocklistlines.length;
+	
+	if(errorflag == 1)
+	{
+		window.alert(ablock.ADBLOCKSearchtoobig);
+	}
+}
+
+function addBlacklist()
+{
+	var x = document.getElementById("adblock_blacklist_add").value.toString();
+	var y = document.getElementById("adblock_blacklist_list").length;
+	if(x == "")
+	{
+		return false;
+	}
+	AddOpt = new Option(x, x);
+	document.getElementById("adblock_blacklist_list").options[y] = AddOpt;
+	document.getElementById("adblock_blacklist_add").value = null;
 }
 
 function saveChanges()
