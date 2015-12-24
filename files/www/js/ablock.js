@@ -12,47 +12,6 @@ var sec = "config";
 
 function resetData()
 {
-	document.getElementById("adblock_displayed_count").innerHTML=ablock.ADBLOCKCounter+" "+document.getElementById("adblock_blocklist_list").length+"/"+blocklistlines.length;
-	document.getElementById("adblock_blocklist_list").innerHTML="";
-	
-	var errorflag = 0;
-	
-	for (x = 0; x < whitelistlines.length; x++)
-	{
-		var list = whitelistlines[x].toString();
-		var toobig = 0;
-		AddOpt = new Option(list, list);
-		document.getElementById("adblock_whitelist_list").options[x] = AddOpt;
-		toobig = document.getElementById("adblock_whitelist_list").length;
-		if(toobig == 10000)
-		{
-			errorflag = 1;
-			break;
-		}
-	}
-	if(errorflag == 1)
-	{
-		alert(ablock.ADBLOCKWhitebig);
-	}
-	errorflag = 0;
-	for (x = 0; x < blacklistlines.length; x++)
-	{
-		var list = blacklistlines[x].toString();
-		AddOpt = new Option(list, list);
-		document.getElementById("adblock_blacklist_list").options[x] = AddOpt;
-		toobig = document.getElementById("adblock_blacklist_list").length;
-		if(toobig == 10000)
-		{
-			errorflag = 1;
-			break;
-		}
-	}
-	if(errorflag == 1)
-	{
-		alert(ablock.ADBLOCKBlackbig);
-	}
-	errorflag = 0;
-	
 	var enabled = uciOriginal.get(pkg, sec, "enabled");
 	document.getElementById("adblock_enable").checked = enabled == 1;
 	updateStatus(enabled);
@@ -68,7 +27,57 @@ function resetData()
 	var exend = uciOriginal.get(pkg, sec, "exend");
 	document.getElementById('adblock_exemptf').value = exend;
 	initializeDescriptionVisibility(uciOriginal, "adblock_help");
+	initializeDescriptionVisibility(uciOriginal, "adblock_help2");
 	uciOriginal.removeSection("gargoyle", "help");
+	
+	if(enabled == 1)
+	{
+		document.getElementById("list_gui").style.display = "block";
+		document.getElementById("adblock_displayed_count").innerHTML=ablock.ADBLOCKCounter+" "+document.getElementById("adblock_blocklist_list").length+"/"+blocklistlines.length;
+		document.getElementById("adblock_blocklist_list").innerHTML="";
+		
+		var errorflag = 0;
+		
+		for (x = 0; x < whitelistlines.length; x++)
+		{
+			var list = whitelistlines[x].toString();
+			var toobig = 0;
+			AddOpt = new Option(list, list);
+			document.getElementById("adblock_whitelist_list").options[x] = AddOpt;
+			toobig = document.getElementById("adblock_whitelist_list").length;
+			if(toobig == 10000)
+			{
+				errorflag = 1;
+				break;
+			}
+		}
+		if(errorflag == 1)
+		{
+			alert(ablock.ADBLOCKWhitebig);
+		}
+		errorflag = 0;
+		for (x = 0; x < blacklistlines.length; x++)
+		{
+			var list = blacklistlines[x].toString();
+			AddOpt = new Option(list, list);
+			document.getElementById("adblock_blacklist_list").options[x] = AddOpt;
+			toobig = document.getElementById("adblock_blacklist_list").length;
+			if(toobig == 10000)
+			{
+				errorflag = 1;
+				break;
+			}
+		}
+		if(errorflag == 1)
+		{
+			alert(ablock.ADBLOCKBlackbig);
+		}
+		errorflag = 0;
+	}
+	else
+	{
+		document.getElementById("list_gui").style.display = "none";
+	}
 }
 
 function updateLastrun()
@@ -90,11 +99,37 @@ function updateStatus(enabled)
 	setElementEnabled(document.getElementById("adblock_update"), enabled == 1);
 }
 
+function populateLists(params)
+{
+	params.push("touch /tmp/blacklist");
+	params.push("touch /tmp/whitelist");
+	for (x = 0; x < document.getElementById("adblock_blacklist_list").length; x++)
+	{
+		params.push("echo \"" + document.getElementById("adblock_blacklist_list").options[x].value.toString() + "\" >> /tmp/blacklist");
+	}
+	for (x = 0; x < document.getElementById("adblock_whitelist_list").length; x++)
+	{
+		params.push("echo \"" + document.getElementById("adblock_whitelist_list").options[x].value.toString() + "\" >> /tmp/whitelist");
+	}
+	
+	params.push("logger -t ADBLOCK Modifying black/white lists from GUI");
+	
+	params.push("sort -u /tmp/blacklist > /plugin_root/adblock/black.list");
+	params.push("sort -u /tmp/whitelist > /plugin_root/adblock/white.list");
+	params.push("rm -f /tmp/blacklist");
+	params.push("rm -f /tmp/whitelist");
+	
+	return params;
+}
+
 function adblockUpdate()
 {
 	var Commands = [];
+	
+	populateLists(Commands);
+	
 	Commands.push("sh /plugin_root/adblock/runadblock.sh");
-	Commands.push("sleep 2");
+	
 
 	setControlsEnabled(false, true, UI.WaitSettings);
 	var param = getParameterDefinition("commands", Commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
@@ -103,11 +138,10 @@ function adblockUpdate()
 		if(req.readyState == 4)
 		{
 			setControlsEnabled(true);
-			document.getElementById('adblock_lastrunval').innerHTML = 'Today';
+			location.reload(true);	//reload the page
 		}
 	}
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
-	updateLastrun();
 }
 
 function transferwhiteList()
@@ -126,25 +160,14 @@ function transferwhiteList()
 	}
 }
 
-function deleteWhitelist()
+function deleteList(id)
 {
-	var index = document.getElementById("adblock_whitelist_list").selectedIndex;
+	var index = id.selectedIndex;
 	
 	while(index != -1)
 	{
-		document.getElementById("adblock_whitelist_list").options[index] = null;
-		index = document.getElementById("adblock_whitelist_list").selectedIndex;
-	}
-}
-
-function deleteBlacklist()
-{
-	var index = document.getElementById("adblock_blacklist_list").selectedIndex;
-	
-	while(index != -1)
-	{
-		document.getElementById("adblock_blacklist_list").options[index] = null;
-		index = document.getElementById("adblock_blacklist_list").selectedIndex;
+		id.options[index] = null;
+		index = id.selectedIndex;
 	}
 }
 
@@ -233,6 +256,10 @@ function saveChanges()
 
 	if(enabled==1)
 	{
+		if(document.getElementById("list_gui").style.display == "block")
+		{
+			populateLists(Commands);
+		}
 		Commands.push("sh /plugin_root/adblock/runadblock.sh -enable");
 	}
 	else
@@ -251,6 +278,7 @@ function saveChanges()
 			updateStatus(enabled);
 			updateLastrun();
 			setControlsEnabled(true);
+			location.reload(true);	//reload the page
 		}
 	}
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);

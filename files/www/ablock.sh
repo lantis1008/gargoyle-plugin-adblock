@@ -72,8 +72,8 @@
 		<input id="adblock_exemptf" class="rightcolumn" type="text" size='15' />
 	</div>
 	
+	<div id="list_gui">
 	<div class="internal_divider"></div>
-	
 	<div>
 		<label id="adblock_blocklist_label" class="leftcolumn" for="adblock_blocklist"><%~ ADBLOCKBlocklist %></label>
 		<label id="adblock_whitelist_label" class="rightcolumn" style="padding-left: 30px;" for="adblock_whitelist"><%~ ADBLOCKWhitelist %></label>
@@ -85,7 +85,7 @@
 		<select id="adblock_blocklist_list" multiple class="leftcolumn" style="width: 200px; height: 150px;"></select>
 		<input id="adblock_transfer_button" type="button" value="-->" onclick="transferwhiteList();" />
 		<select id="adblock_whitelist_list" multiple style="width: 200px; height: 150px;"></select>
-		<input id="adblock_whitelist_delete_button" type="button" value='<%~ ADBLOCKBlackdel %>' onclick="deleteWhitelist();" />
+		<input id="adblock_whitelist_delete_button" class="rightcolumn" type="button" value='<%~ ADBLOCKBlackdel %>' onclick="deleteList(adblock_whitelist_list);" />
 	</div>
 	<div>
 		<input id="adblock_blocklist_search" class="leftcolumn" type="text" />
@@ -98,7 +98,7 @@
 	</div>
 	<div>
 		<select id="adblock_blacklist_list" multiple class="leftcolumn" style="width: 200px; height: 150px;"></select>
-		<input id="adblock_blacklist_delete_button" type="button" class="rightcolumn" value='<%~ ADBLOCKBlackdel %>' onclick="deleteBlacklist();" />
+		<input id="adblock_blacklist_delete_button" type="button" class="rightcolumn" value='<%~ ADBLOCKBlackdel %>' onclick="deleteList(adblock_blacklist_list);" />
 	</div>
 	<div>
 		<input id="adblock_blacklist_add" class="leftcolumn" type="text" />
@@ -106,7 +106,17 @@
 	<div>
 		<input type="button" class="leftcolumn" value='<%~ ADBLOCKBlackadd %>' onclick="addBlacklist();" />
 	</div>
+	<div id="adblock_help2" class="indent">
+	<span id="adblock_help2_txt">
 
+	<p><%~ ADBLOCKHelp2 %></p>
+
+	</span>
+	<a id="adblock_help2_ref" onclick='setDescriptionVisibility("adblock_help2")' href="#adblock_help2"><%~ Hide %></a>
+
+	</div>
+	</div>
+	
 </fieldset>
 
 <div id="bottom_button_container">
