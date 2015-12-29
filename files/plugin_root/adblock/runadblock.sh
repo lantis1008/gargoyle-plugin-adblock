@@ -3,9 +3,6 @@
 #Block ads, malware, etc.
 
 #### CONFIG SECTION ####
-# Only block wireless ads? Y/N
-ONLY_WIRELESS=`uci get adblock.config.onlywireless`
-
 # Try to transparently serve pixel response?
 TRANS=`uci get adblock.config.trans`
 
@@ -34,28 +31,14 @@ cleanup()
 
 add_config()
 {
-	if [ "$ONLY_WIRELESS" == 1 ]
+	if [ "$EXEMPT" == 1 ]
 	then
-		logger -t ADBLOCK Only blocking ads for wireless clients
-		if [ "$EXEMPT" == 1 ]
-		then
-			logger -t ADBLOCK Exempting some clients from ad blocking
-			FW1="iptables -t nat -I PREROUTING -m iprange ! --src-range $START_RANGE-$END_RANGE -i wlan+ -p tcp --dport 53 -j REDIRECT --to-ports 53"
-			FW2="iptables -t nat -I PREROUTING -m iprange ! --src-range $START_RANGE-$END_RANGE -i wlan+ -p udp --dport 53 -j REDIRECT --to-ports 53"
-		else
-			FW1="iptables -t nat -I PREROUTING -i wlan+ -p tcp --dport 53 -j REDIRECT --to-ports 53"
-			FW2="iptables -t nat -I PREROUTING -i wlan+ -p udp --dport 53 -j REDIRECT --to-ports 53"
-		fi
+		logger -t ADBLOCK Exempting some clients from ad blocking
+		FW1="iptables -t nat -I PREROUTING -m iprange ! --src-range $START_RANGE-$END_RANGE -p tcp --dport 53 -j REDIRECT --to-ports 53"
+		FW2="iptables -t nat -I PREROUTING -m iprange ! --src-range $START_RANGE-$END_RANGE -p udp --dport 53 -j REDIRECT --to-ports 53"
 	else
-		if [ "$EXEMPT" == 1 ]
-		then
-			logger -t ADBLOCK Exempting some clients from ad blocking
-			FW1="iptables -t nat -I PREROUTING -m iprange ! --src-range $START_RANGE-$END_RANGE -p tcp --dport 53 -j REDIRECT --to-ports 53"
-			FW2="iptables -t nat -I PREROUTING -m iprange ! --src-range $START_RANGE-$END_RANGE -p udp --dport 53 -j REDIRECT --to-ports 53"
-		else
-			FW1="iptables -t nat -I PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53"
-			FW2="iptables -t nat -I PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53"
-		fi
+		FW1="iptables -t nat -I PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53"
+		FW2="iptables -t nat -I PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53"
 	fi
  
 	#Update DHCP config
@@ -80,12 +63,7 @@ add_config()
 	if [ "$TRANS" == 1 ]
 	then
 		logger -t ADBLOCK Pointing uHTTPd error page at transparent pixel
-		ENDPOINT_IP4=$(uci get network.lan.ipaddr)
-		if [ ! -e "/www/1.gif" ]
-		then
-			/usr/bin/wget -O /www/1.gif http://upload.wikimedia.org/wikipedia/commons/c/ce/Transparent.gif  > /dev/null
-		fi
-		uci set uhttpd.main.error_page="/1.gif" && uci commit
+		uci set uhttpd.main.error_page="/transpixel.gif" && uci commit
 	fi
 }
 
@@ -103,7 +81,7 @@ remove_config()
 	logger -t ADBLOCK Removing firewall rules
 	sed -i '/--to-ports 53/d' /etc/firewall.user
 
-	# Remove proxying
+	# Remove pixel redirect
 	logger -t ADBLOCK Reverting uHTTPd error page
 	uci set uhttpd.main.error_page="/login.sh" && uci commit
 }

@@ -16,8 +16,6 @@ function resetData()
 	document.getElementById("adblock_enable").checked = enabled == 1;
 	updateStatus(enabled);
 	updateLastrun();
-	var onlywireless = uciOriginal.get(pkg, sec, "onlywireless");
-	document.getElementById("adblock_wireless").checked = onlywireless == 1;
 	var transparent = uciOriginal.get(pkg, sec, "trans");
 	document.getElementById("adblock_transparent").checked = transparent == 1;
 	var exempt = uciOriginal.get(pkg, sec, "exempt");
@@ -230,7 +228,6 @@ function saveChanges()
 {
 	var Commands = [];
 	var enabled = document.getElementById("adblock_enable").checked ? "1":"0";
-	var onlywireless = document.getElementById('adblock_wireless').checked ? "1":"0";
 	var transparent = document.getElementById('adblock_transparent').checked ? "1":"0";
 	var exempt = document.getElementById('adblock_exempten').checked ? "1":"0";
 	var exstart = document.getElementById('adblock_exempts').value;
@@ -246,7 +243,6 @@ function saveChanges()
 	var uci = uciOriginal.clone()
 
 	uci.set(pkg, sec, "enabled", enabled);
-	uci.set(pkg, sec, "onlywireless", onlywireless);
 	uci.set(pkg, sec, "trans", transparent);
 	uci.set(pkg, sec, "exempt", exempt);
 	uci.set(pkg, sec, "exstart", exstart);

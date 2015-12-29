@@ -38,11 +38,6 @@
 	</div>
 
 	<div>
-		<label id="adblock_wireless_label" class="leftcolumn" for="adblock_wireless"><%~ ADBLOCKWireless %>:</label>
-		<input id="adblock_wireless" class="rightcolumn" type="checkbox" />
-	</div>
-
-	<div>
 		<label id="adblock_transparent_label" class="leftcolumn" for="adblock_transparent"><%~ ADBLOCKTrans %>:</label>
 		<input id="adblock_transparent" class="rightcolumn" type="checkbox" />
 	</div>
