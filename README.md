@@ -6,18 +6,22 @@ Install
 - Install "DNS adblocking support for Gargoyle"
 
 Updating
+
 To update the plugin, first uninstall it, then install the new version
 - For the latest version, add the following as a feed in your System->Plugins page
 "http://lantisproject.com/gargoyle_plugins"
 
 Verify the plugin is operating correctly
+
 Visit the page: http://ads-blocker.com/testing/
 If you can't see any ads, you're good to go. If you are seeing ads, your computer may be loading a cached version of the site which includes the ads. Try clearing your cache (CTRL+F5 refresh the page).
 
 Black List
+
 Used to add sites to the block.list that are not already included.
 
 White List
+
 Used to remove sites from the block.list. 
 NOTE: The white list will ONLY remove items that are ALREADY ON the block.list. If they aren't on the list, don't bother white listing them.
 
