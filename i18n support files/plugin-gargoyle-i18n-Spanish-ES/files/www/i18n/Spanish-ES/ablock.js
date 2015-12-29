@@ -12,4 +12,15 @@ ablock.ADBLOCKExempts="IP rango empezar";
 ablock.ADBLOCKExemptf="IP acabado de gama";
 ablock.ADBLOCKExemptEn="Habilitar ad exención para clientes";
 ablock.ERRrange="De cualquier principio o al final del rango de exención está en blanco. Si sólo desea eximir 1 IP luego usarlo como tanto el inicio y el final del rango.";
+ablock.ADBLOCKBlocklist="Lista Bloquear Resultados de la búsqueda";
+ablock.ADBLOCKWhitelist="Lista Blanca";
+ablock.ADBLOCKSearch="Buscar Lista de bloqueo";
+ablock.ADBLOCKBlacklist="Lista negra";
+ablock.ADBLOCKBlackdel="Borrar";
+ablock.ADBLOCKBlackadd="Añadir";
+ablock.ADBLOCKCounter="Viendo";
+ablock.ADBLOCKSearchtoobig="Su lista blanca tiene más de 10000 entradas. No puede mostrar toda la lista.";
+ablock.ADBLOCKWhitebig="Su lista blanca tiene más de 10000 entradas. No puede mostrar toda la lista.";
+ablock.ADBLOCKBlackbig="Su lista negra tiene más de 10000 entradas. No puede mostrar toda la lista.";
+ablock.ADBLOCKHelp2="Esta sección le permite agregar y quitar elementos de la lista de bloqueo.</p><p>Puede agregar artículos a la lista de bloqueo escribiéndolos en el cuadro y haciendo clic <i>añadir</i>. Puede eliminar elementos de la lista de bloqueo seleccionándolos y luego transferirlos a la lista blanca utilizando el <i>transferir</i> botón. Puede eliminar elementos de la lista negro o blanco con el <i>borrar</i> botones.</p><p>La lista de bloqueo puede ser muy grande, y la pantalla sólo puede mostrar 10.000 artículos a la vez. Usted puede encontrar un elemento en busca de ella escribiendo en la caja y con el <i>buscar</i> botón.</p><p>Todas las cajas permiten seleccionar más de un elemento a la vez.";
 
