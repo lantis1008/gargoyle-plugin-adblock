@@ -101,7 +101,7 @@ update_blocklist()
 	logger -t ADBLOCK Adding entries from black.list
 	if [ -s "/plugin_root/adblock/black.list" ]
 	then
-		awk -v r="$ENDPOINT_IP4" '/^[^#]/ { print r,$1 }' /plugin_root/adblock/black.list >> /tmp/block.build.list
+		awk -v r="$ENDPOINT_IP4" '{ print r,$1 }' /plugin_root/adblock/black.list >> /tmp/block.build.list
 	fi
 
 	#Sort the download/black lists
