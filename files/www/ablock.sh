@@ -14,9 +14,9 @@
 	echo "var blocklistlines = new Array();"
 	cat /plugin_root/adblock/block.hosts | awk '{print "blocklistlines.push(\""$2"\");"}'
 	echo "var blacklistlines = new Array();"
-	cat /plugin_root/adblock/black.list | awk '{print "blacklistlines.push(\""$0"\");"}'
+	cat /usr/lib/adblock/black.list | awk '{print "blacklistlines.push(\""$0"\");"}'
 	echo "var whitelistlines = new Array();"
-	cat /plugin_root/adblock/white.list | awk '{print "whitelistlines.push(\""$0"\");"}'
+	cat /usr/lib/adblock/white.list | awk '{print "whitelistlines.push(\""$0"\");"}'
 %>
 </script>
 
