@@ -52,7 +52,7 @@ endef
 define Package/plugin-gargoyle-adblock/prerm
 #!/bin/sh
 
-sh /sbin/runadblock.sh -disable
+sh /usr/lib/runadblock.sh -disable
 endef
 
 define Package/plugin-gargoyle-adblock/postrm
@@ -67,7 +67,7 @@ fi
 cat /etc/crontabs/root | grep -v -e 'runadblock.sh' > /tmp/cron.backup
 mv /tmp/cron.backup /etc/crontabs/root
 /etc/init.d/cron restart
-rm -f /plugin_root/adblock/block.hosts
+rm -rf /plugin_root/adblock
 endef
 
 define Package/plugin-gargoyle-adblock/install

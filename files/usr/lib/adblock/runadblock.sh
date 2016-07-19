@@ -31,6 +31,14 @@ cleanup()
 
 add_config()
 {
+	mkdir -p "/plugin_root/adblock"
+	if [ $? -ne 0 ] ; then
+		logger -t ADBLOCK Unable to create folder to store ad list. Attempting to exit gracefully...
+		exit 1
+	else
+		logger -t ADBLOCK Adblock folder has been created or already exists...
+	fi
+
 	if [ "$EXEMPT" == 1 ]
 	then
 		logger -t ADBLOCK Exempting some clients from ad blocking
